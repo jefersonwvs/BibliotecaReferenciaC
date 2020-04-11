@@ -8,7 +8,7 @@ int main() {
 
     x >= y ? printf("%d >= %d\n", x, y) : printf("%d < %d\n", x, y);
 
-    /* O operador ternário: exp1 ? exp2 : exp3 desempenha a mesma função que a estrutura if-else abaixo*/
+    /* O operador ternÃ¡rio acima, exp1 ? exp2 : exp3, desempenha a mesma funÃ§Ã£o que a estrutura if-else abaixo*/
 
     if (x >= y)
         printf("%d >= %d\n", x, y);
