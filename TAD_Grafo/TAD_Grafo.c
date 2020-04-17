@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "TADfila.c"
+#include "TAD_ListaDinamica.c"
+#include "TAD_FilaDinamica.c"
 
 #define TAM 6
 
-typedef Fila GrafoL[TAM];       //Grafo como lista de Adjacências
+typedef Lista GrafoL[TAM];       //Grafo como lista de Adjacências
 typedef int GrafoM[TAM][TAM];   //Grafo como matriz de Adjacências
 
 void BFS(GrafoL, int);
@@ -15,51 +16,41 @@ int main()
     GrafoM Gmatriz;
     int i, j, v0;
 
-    //printf("Digite os vertices adjacentes a cada vertice. (-1 para sair): \n");
-    for (i = 0; i < TAM; i++) {
-        inicializarFila(&Glista[i]);
-        /*printf("V(%d): ", i+1);
-        scanf("%d", &adj);
-        while (adj != -1) {
-            enfileirar(&G[i], adj);
-            printf("V(%d): ", i+1);
-            scanf("%d", &adj);
-        }
-        printf("\n");*/
-    }
+    for (i = 0; i < TAM; i++)
+        inicializarListaAdj(&Glista[i]);
 
-    enfileirar(&Glista[0], 1);
+    insereVertice(&Glista[0], 1);
     Gmatriz[0][1] = 1;
-    enfileirar(&Glista[0], 2);
+    insereVertice(&Glista[0], 2);
     Gmatriz[0][2] = 1;
 
-    enfileirar(&Glista[1], 0);
+    insereVertice(&Glista[1], 0);
     Gmatriz[1][0] = 1;
-    enfileirar(&Glista[1], 2);
+    insereVertice(&Glista[1], 2);
     Gmatriz[1][2] = 1;
 
-    enfileirar(&Glista[2], 0);
+    insereVertice(&Glista[2], 0);
     Gmatriz[2][0] = 1;
-    enfileirar(&Glista[2], 1);
+    insereVertice(&Glista[2], 1);
     Gmatriz[2][1] = 1;
-    enfileirar(&Glista[2], 3);
+    insereVertice(&Glista[2], 3);
     Gmatriz[2][3] = 1;
 
-    enfileirar(&Glista[3], 2);
+    insereVertice(&Glista[3], 2);
     Gmatriz[3][2] = 1;
-    enfileirar(&Glista[3], 4);
+    insereVertice(&Glista[3], 4);
     Gmatriz[3][4] = 1;
-    enfileirar(&Glista[3], 5);
+    insereVertice(&Glista[3], 5);
     Gmatriz[3][5] = 1;
 
-    enfileirar(&Glista[4], 3);
+    insereVertice(&Glista[4], 3);
     Gmatriz[4][3] = 1;
-    enfileirar(&Glista[4], 5);
+    insereVertice(&Glista[4], 5);
     Gmatriz[4][5] = 1;
 
-    enfileirar(&Glista[5], 3);
+    insereVertice(&Glista[5], 3);
     Gmatriz[5][3] = 1;
-    enfileirar(&Glista[5], 4);
+    insereVertice(&Glista[5], 4);
     Gmatriz[5][4] = 1;
 
     Gmatriz[2][5] = 0;  //corregindo um bug
@@ -67,7 +58,7 @@ int main()
     printf("Lista de Adjacencias do grafo G: \n");
     for(i = 0; i < TAM; i++) {
         printf("[%d]---", i);
-        imprimeFila(&Glista[i]);
+        imprimeListaAdj(&Glista[i]);
     }
 
     printf("\nMatriz de Adjacencias do grafo G: \n");
@@ -90,9 +81,10 @@ int main()
     printf("[(v), d,  p]\n");
     BFS(Glista, v0);
 
-     for(i = 0; i < TAM; i++)
-        finalizarFila(&Glista[i]);
-
+    for(i = 0; i < TAM; i++) {    // finaliza o grafo
+        finalizaListaAdj(&Glista[i]);
+        //printf("%p, %p, %d\n", Glista[i].primeiro, Glista[i].ultimo, Glista[i].tamanho);
+    }
     return 0;
 }
 
@@ -117,8 +109,8 @@ void BFS(GrafoL G, int v0) {
 
     Fila Q;                         // fila para armazenar e ordenar a maneira de exploração dos vértices do grafo
 
-    Fila *uAdj;                     // ponteiro auxiliar para acessar sem complicações, iteração a iteração, a lista de adjacências de cada vértice
-    celula *v;                      // ponteiro auxiliar para percorrer e acessar cada vértice adjacente a um dado vértice
+    Lista *uAdj;                     // ponteiro auxiliar para acessar sem complicações, iteração a iteração, a lista de adjacências de cada vértice
+    adjacente *v;                    // ponteiro auxiliar para percorrer e acessar cada vértice adjacente a um dado vértice
 
     /*Inicialização*/
     for(u = 0; u < TAM; u++) {          // Para cada u pertencente ao conjunto de vértices
