@@ -128,80 +128,11 @@ int buscaListaAdj(Lista* L, int buscado) {
     return 0;
 }
 
-int insereVertice(Lista* L, int novo) {
-    adjacente* novoAdjacente;
-    adjacente* aux;
-    adjacente* ant;
-
-    if((novoAdjacente = criaAdjacente(novo))) {
-        if(listaAdjVazia(L)) {
-            L->primeiro = novoAdjacente;
-            L->ultimo = novoAdjacente;
-        } else {
-            if (L->primeiro->vertice > novo) {
-                novoAdjacente->proxAdj = L->primeiro;
-                L->primeiro = novoAdjacente;
-            } else {
-                if(L->ultimo->vertice < novo) {
-                    L->ultimo->proxAdj = novoAdjacente;
-                    L->ultimo = novoAdjacente;
-                } else {
-                    ant = aux = L->primeiro;
-                    while (aux) {
-                        if (aux->vertice > novo)
-                            break;
-                        ant = aux;
-                        aux = aux->proxAdj;
-                    }
-                    ant->proxAdj = novoAdjacente;
-                    novoAdjacente->proxAdj = aux;
-                }
-            }
-        }
-        L->tamanho++;
-        return 1;
-    }
-    return 0;
-}
-
-int removeVertice(Lista* L, int x) {
-    adjacente* aux;
-    adjacente* ant;
-
-    if (listaAdjVazia(L))
-        return -1;
-
-    ant = NULL;
-    aux = L->primeiro;
-    if (aux->vertice == x) {
-        L->primeiro = L->primeiro->proxAdj;
-    } else {
-        ant = aux;
-        while(aux) {
-            if(aux->vertice == x)
-                break;
-            ant = aux;
-            aux = aux->proxAdj;
-        }
-        ant->proxAdj = aux->proxAdj;
-    }
-    if (aux->proxAdj == NULL)
-        L->ultimo = ant;
-    L->tamanho--;
-    free(aux);
-    return x;
-}
-
-void finalizaListaAdj(Lista* L) {
-    while(L->primeiro)
-        removeVertice(L, L->primeiro->vertice);
-}
-
 void imprimeListaAdj(Lista* L) {
     adjacente* aux = L->primeiro;
     while (aux) {
         printf("--->>[%d]", aux->vertice);
         aux = aux->proxAdj;
     }
-    printf("\n");
+    printf("--->>[\\]\n");
 }

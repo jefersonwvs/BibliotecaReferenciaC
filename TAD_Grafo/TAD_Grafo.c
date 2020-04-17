@@ -3,57 +3,65 @@
 #include "TAD_ListaDinamica.c"
 #include "TAD_FilaDinamica.c"
 
-#define TAM 6
+//#define TAM 6
 
-typedef Lista GrafoL[TAM];       //Grafo como lista de Adjacências
-typedef int GrafoM[TAM][TAM];   //Grafo como matriz de Adjacências
+typedef Lista* GrafoL;       //Grafo como lista de Adjacências
+typedef int** GrafoM;   //Grafo como matriz de Adjacências
 
-void BFS(GrafoL, int);
+int insereAresta(Lista*, int);
+int removeAresta(Lista*, int);
+void BFS(GrafoL, int, int);
+void finalizaListaAdj(Lista*);
 
 int main()
 {
     GrafoL Glista;
     GrafoM Gmatriz;
-    int i, j, v0;
+    int TAM, i, j, v0;
 
+    TAM = 6;
+
+    Glista = (Lista*)malloc(TAM*sizeof(Lista));
     for (i = 0; i < TAM; i++)
         inicializarListaAdj(&Glista[i]);
 
-    insereVertice(&Glista[0], 1);
+    Gmatriz = (int**)malloc(TAM*sizeof(int*));
+    for (i = 0; i < TAM; i++)
+        Gmatriz[i] = (int*)malloc(TAM*sizeof(int));
+
+    insereAresta(&Glista[0], 1);
     Gmatriz[0][1] = 1;
-    insereVertice(&Glista[0], 2);
+    insereAresta(&Glista[0], 2);
     Gmatriz[0][2] = 1;
 
-    insereVertice(&Glista[1], 0);
+    insereAresta(&Glista[1], 0);
     Gmatriz[1][0] = 1;
-    insereVertice(&Glista[1], 2);
+    insereAresta(&Glista[1], 2);
     Gmatriz[1][2] = 1;
 
-    insereVertice(&Glista[2], 0);
+    insereAresta(&Glista[2], 0);
     Gmatriz[2][0] = 1;
-    insereVertice(&Glista[2], 1);
+    insereAresta(&Glista[2], 1);
     Gmatriz[2][1] = 1;
-    insereVertice(&Glista[2], 3);
+    insereAresta(&Glista[2], 3);
     Gmatriz[2][3] = 1;
 
-    insereVertice(&Glista[3], 2);
+    insereAresta(&Glista[3], 2);
     Gmatriz[3][2] = 1;
-    insereVertice(&Glista[3], 4);
+    insereAresta(&Glista[3], 4);
     Gmatriz[3][4] = 1;
-    insereVertice(&Glista[3], 5);
+    insereAresta(&Glista[3], 5);
     Gmatriz[3][5] = 1;
 
-    insereVertice(&Glista[4], 3);
+    insereAresta(&Glista[4], 3);
     Gmatriz[4][3] = 1;
-    insereVertice(&Glista[4], 5);
+    insereAresta(&Glista[4], 5);
     Gmatriz[4][5] = 1;
 
-    insereVertice(&Glista[5], 3);
+    insereAresta(&Glista[5], 3);
     Gmatriz[5][3] = 1;
-    insereVertice(&Glista[5], 4);
+    insereAresta(&Glista[5], 4);
     Gmatriz[5][4] = 1;
-
-    Gmatriz[2][5] = 0;  //corregindo um bug
 
     printf("Lista de Adjacencias do grafo G: \n");
     for(i = 0; i < TAM; i++) {
@@ -71,6 +79,11 @@ int main()
         printf("\n");
     }
 
+    for (i = 0; i < TAM; i++)
+        free(Gmatriz[i]);
+    free(Gmatriz);
+
+
     printf("\nBFS - Breadth-First Search (Busca em Largura): \n");
     printf("Digite o vertice de origem para a BFS (0 - %d): ", TAM-1);
     scanf("%d", &v0);
@@ -79,13 +92,83 @@ int main()
     printf("  d: distancia da origem\n");
     printf("  p: predecessor\n");
     printf("[(v), d,  p]\n");
-    BFS(Glista, v0);
+    BFS(Glista, TAM, v0);
 
     for(i = 0; i < TAM; i++) {    // finaliza o grafo
         finalizaListaAdj(&Glista[i]);
         //printf("%p, %p, %d\n", Glista[i].primeiro, Glista[i].ultimo, Glista[i].tamanho);
     }
+    free(Glista);
     return 0;
+}
+
+int insereAresta(Lista* L, int novo) {
+    adjacente* novoAdjacente;
+    adjacente* aux;
+    adjacente* ant;
+
+    if((novoAdjacente = criaAdjacente(novo))) {
+        if(listaAdjVazia(L)) {
+            L->primeiro = novoAdjacente;
+            L->ultimo = novoAdjacente;
+        } else {
+            if (L->primeiro->vertice > novo) {
+                novoAdjacente->proxAdj = L->primeiro;
+                L->primeiro = novoAdjacente;
+            } else {
+                if(L->ultimo->vertice < novo) {
+                    L->ultimo->proxAdj = novoAdjacente;
+                    L->ultimo = novoAdjacente;
+                } else {
+                    ant = aux = L->primeiro;
+                    while (aux) {
+                        if (aux->vertice > novo)
+                            break;
+                        ant = aux;
+                        aux = aux->proxAdj;
+                    }
+                    ant->proxAdj = novoAdjacente;
+                    novoAdjacente->proxAdj = aux;
+                }
+            }
+        }
+        L->tamanho++;
+        return 1;
+    }
+    return 0;
+}
+
+int removeAresta(Lista* L, int x) {
+    adjacente* aux;
+    adjacente* ant;
+
+    if (listaAdjVazia(L))
+        return -1;
+
+    ant = NULL;
+    aux = L->primeiro;
+    if (aux->vertice == x) {
+        L->primeiro = L->primeiro->proxAdj;
+    } else {
+        ant = aux;
+        while(aux) {
+            if(aux->vertice == x)
+                break;
+            ant = aux;
+            aux = aux->proxAdj;
+        }
+        ant->proxAdj = aux->proxAdj;
+    }
+    if (aux->proxAdj == NULL)
+        L->ultimo = ant;
+    L->tamanho--;
+    free(aux);
+    return x;
+}
+
+void finalizaListaAdj(Lista* L) {
+    while(L->primeiro)
+        removeAresta(L, L->primeiro->vertice);
 }
 
 /*
@@ -99,7 +182,7 @@ int main()
         G[]=vetor de vértices e suas respectivas listas de adjacências
         v0=vértice de origem
 */
-void BFS(GrafoL G, int v0) {
+void BFS(GrafoL G, int TAM, int v0) {
 
     int u;
 
