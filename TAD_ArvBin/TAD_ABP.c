@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct vertice {
     struct vertice* esq;
@@ -18,21 +19,36 @@ int buscaVertice(ArvBinPesq*, int);
 void preOrdem(ArvBinPesq);
 void emOrdem(ArvBinPesq);
 void posOrdem(ArvBinPesq);
+void representacaoAninhada(ArvBinPesq);
+void representacaoIndentada(ArvBinPesq, int);
+void construtor(ArvBinPesq*, char*);
 
 int main() {
 
     ArvBinPesq Raiz = NULL;
 
+    char *arvore = "5(3(2(1),4), 7(6,8(,9)))";
+
     printf("%p\n", Raiz);
     printf("%d\n\n", arvoreVazia(&Raiz));
 
-    insereVertice(&Raiz, 4);
+    /*insereVertice(&Raiz, 4);
     insereVertice(&Raiz, 2);
     insereVertice(&Raiz, 1);
     insereVertice(&Raiz, 3);
     insereVertice(&Raiz, 6);
     insereVertice(&Raiz, 5);
-    insereVertice(&Raiz, 7);
+    insereVertice(&Raiz, 7);*/
+
+    construtor(&Raiz, arvore);
+
+    printf("\n\n");
+    representacaoAninhada(Raiz);
+    printf("\n\n");
+
+    printf("\n\n");
+    representacaoIndentada(Raiz, 0);
+    printf("\n\n");
 
     printf("preOrdem: ");
     preOrdem(Raiz);
@@ -62,8 +78,9 @@ int main() {
 
     printf("\n%p\n", Raiz);
     printf("%d\n", buscaVertice(&Raiz, 4));
-    printf("%d\n", buscaVertice(&Raiz, 10));
+    printf("%d\n", buscaVertice(&Raiz, 8));
 
+    system("pause");
     return 0;
 }
 
@@ -80,6 +97,25 @@ ArvBinPesq criaVertice(int x) {
         return novoVertice;
     }
     return NULL;
+}
+
+int insereVertice(ArvBinPesq* ptrRaiz, int x) { // [ptrRaiz]----->[Raiz]----->...
+    ArvBinPesq aux;                             //                [aux]----->
+    aux = *ptrRaiz;                             //                [aux]----->...
+    if (arvoreVazia(&aux)) {                    //     se         [aux]----->\ .
+        aux = criaVertice(x);                   //                [aux]----->[\|x|\]
+        *ptrRaiz = aux;                         // [ptrRaiz]----->[Raiz]---->[\|x|\]
+        return 1;
+    } else {
+        if (x < aux->chave)
+            return insereVertice(&(aux->esq), x);
+        else {
+            if (x == aux->chave)                // chave já existente n�o pode inserir
+                return 0;
+            else    // (x > aux->chave)
+                return insereVertice(&(aux->dir), x);
+        }
+    }
 }
 
 int removeVertice(ArvBinPesq* ptrRaiz, int x){
@@ -118,25 +154,6 @@ ArvBinPesq antecessorVertice(ArvBinPesq* ptrRaiz) {
         return aux;
     } else
         return antecessorVertice(&(aux->dir));
-}
-
-int insereVertice(ArvBinPesq* ptrRaiz, int x) { // [ptrRaiz]----->[Raiz]----->...
-    ArvBinPesq aux;                             //                [aux]----->
-    aux = *ptrRaiz;                             //                [aux]----->...
-    if (arvoreVazia(&aux)) {                    //     se         [aux]----->\ .
-        aux = criaVertice(x);                   //                [aux]----->[\|x|\]
-        *ptrRaiz = aux;                         // [ptrRaiz]----->[Raiz]---->[\|x|\]
-        return 1;
-    } else {
-        if (x < aux->chave)
-            return insereVertice(&aux->esq, x);
-        else {
-            if (x == aux->chave)                // chave j� existente n�o pode inserir
-                return 0;
-            else    // (x > aux->chave)
-                return insereVertice(&aux->dir, x);
-        }
-    }
 }
 
 int buscaVertice(ArvBinPesq* ptrRaiz, int x) {
@@ -178,5 +195,45 @@ void posOrdem(ArvBinPesq ptrRaiz) {
         posOrdem(aux->esq);
         posOrdem(aux->dir);
         printf("%d  ", aux->chave);
+    }
+}
+
+void representacaoAninhada(ArvBinPesq ptrRaiz) {
+    ArvBinPesq aux = ptrRaiz;
+    if (aux) {
+        printf("%d", aux->chave);
+        if (aux->esq || aux->dir) {
+            printf("(");
+            representacaoAninhada(aux->esq);
+            if (aux->dir){
+                printf(",");
+                representacaoAninhada(aux->dir);
+            }
+            printf(")");
+        }
+    }
+}
+
+void representacaoIndentada(ArvBinPesq ptrRaiz, int tabs) {
+    ArvBinPesq aux = ptrRaiz;
+    int i;
+    if (aux == NULL)
+        return;
+    for(i = 0; i < tabs; i++)
+        printf("  ");
+    printf("%d\n", aux->chave);
+    representacaoIndentada(aux->esq, tabs+1);
+    representacaoIndentada(aux->dir, tabs+1);
+
+}
+
+void construtor(ArvBinPesq* ptrRaiz, char* arvore) {
+    int i, x;
+    int tam = strlen(arvore);
+    for(i = 0; i < tam; i++) {
+        if ( (arvore[i] != '(' && arvore[i] != ')') && (arvore[i] != ',' && arvore[i] != ' ') ){
+            x = arvore[i] % 48; // transforma char em int. !válido SOMENTE para chaves de 0 a 9, pois a partir daí os números têm mais de 1 caractere
+            insereVertice(ptrRaiz, x);
+        }
     }
 }
