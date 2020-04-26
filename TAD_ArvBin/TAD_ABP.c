@@ -8,77 +8,65 @@ struct vertice {
     struct vertice* dir;
 };
 typedef struct vertice Vertice;
-typedef struct vertice* ArvBinPesq;    // �rvore Bin�ria de Pesquisa;
+typedef struct vertice* ArvBinPesq;    // Árvore Binária de Pesquisa;
 
 int arvoreVazia(ArvBinPesq*);
 ArvBinPesq criaVertice(int);
 int insereVertice(ArvBinPesq*, int);
 int removeVertice(ArvBinPesq*, int);
 ArvBinPesq antecessorVertice(ArvBinPesq*);
+ArvBinPesq sucessorVertice(ArvBinPesq*);
 int buscaVertice(ArvBinPesq*, int);
 void preOrdem(ArvBinPesq);
 void emOrdem(ArvBinPesq);
 void posOrdem(ArvBinPesq);
 void representacaoAninhada(ArvBinPesq);
 void representacaoIndentada(ArvBinPesq, int);
-void construtor(ArvBinPesq*, char*);
+void constroiArvore(ArvBinPesq*, char*);
+void concatenarCaractere(char*, char);
+void destroiArvore(ArvBinPesq*);
 
 int main() {
 
     ArvBinPesq Raiz = NULL;
 
-    char *arvore = "5(3(2(1),4), 7(6,8(,9)))";
+    char *arvore = "50(30(20(10),40), 70(60,80(,90)))";
 
-    printf("%p\n", Raiz);
-    printf("%d\n\n", arvoreVazia(&Raiz));
+    printf("====================Arvore Binaria de Pesquisa - ABP====================\n");
 
-    /*insereVertice(&Raiz, 4);
-    insereVertice(&Raiz, 2);
-    insereVertice(&Raiz, 1);
-    insereVertice(&Raiz, 3);
-    insereVertice(&Raiz, 6);
-    insereVertice(&Raiz, 5);
-    insereVertice(&Raiz, 7);*/
-
-    construtor(&Raiz, arvore);
-
-    printf("\n\n");
+    constroiArvore(&Raiz, arvore);
+    insereVertice(&Raiz, 51);
+    insereVertice(&Raiz, 46);
+    removeVertice(&Raiz, 50);
+    //destroiArvore(&Raiz);
+    printf("\nRepresentacao aninhada: ");
     representacaoAninhada(Raiz);
-    printf("\n\n");
 
-    printf("\n\n");
+    printf("\nRepresentacao indentada: \n");
     representacaoIndentada(Raiz, 0);
-    printf("\n\n");
+    printf("\n");
 
-    printf("preOrdem: ");
+    printf("Percursos:");
+    printf("\n  PreOrdem: ");
     preOrdem(Raiz);
-    printf("\nemOrdem: ");
+    printf("\n  InOrdem: ");
     emOrdem(Raiz);
-    printf("\nposOrdem: ");
+    printf("\n  PosOrdem: ");
     posOrdem(Raiz);
-    printf("\n\n");
+    printf("\n");
 
-    removeVertice(&Raiz, 4);
+    printf("========================================================================\n\n");
+
+    /*removeVertice(&Raiz, 4);
     removeVertice(&Raiz, 6);
     removeVertice(&Raiz, 5);
     removeVertice(&Raiz, 3);
     removeVertice(&Raiz, 2);
     removeVertice(&Raiz, 1);
     removeVertice(&Raiz, 7);
-    /*insereVertice(&Raiz, 53);
+    insereVertice(&Raiz, 53);
     insereVertice(&Raiz, 21);
     insereVertice(&Raiz, 79);*/
-    printf("preOrdem: ");
-    preOrdem(Raiz);
-    printf("\nemOrdem: ");
-    emOrdem(Raiz);
-    printf("\nposOrdem: ");
-    posOrdem(Raiz);
-    printf("\n\n");
-
-    printf("\n%p\n", Raiz);
-    printf("%d\n", buscaVertice(&Raiz, 4));
-    printf("%d\n", buscaVertice(&Raiz, 8));
 
     system("pause");
     return 0;
@@ -138,7 +126,6 @@ int removeVertice(ArvBinPesq* ptrRaiz, int x){
         }
         free(aux);  // libera a memória
         return 1;
-
     } else {
         if (x < (*ptrRaiz)->chave) // vértice a ser removido é menor do que a raiz da árvore ou da subárvore
             return removeVertice(&((*ptrRaiz)->esq), x);
@@ -154,6 +141,15 @@ ArvBinPesq antecessorVertice(ArvBinPesq* ptrRaiz) {
         return aux;
     } else
         return antecessorVertice(&(aux->dir));
+}
+
+ArvBinPesq sucessorVertice(ArvBinPesq* ptrRaiz) {
+    ArvBinPesq aux = *ptrRaiz;
+    if (!aux->esq) {
+        *ptrRaiz = (*ptrRaiz)->dir;
+        return aux;
+    } else
+        return sucessorVertice(&(aux->esq));
 }
 
 int buscaVertice(ArvBinPesq* ptrRaiz, int x) {
@@ -224,16 +220,37 @@ void representacaoIndentada(ArvBinPesq ptrRaiz, int tabs) {
     printf("%d\n", aux->chave);
     representacaoIndentada(aux->esq, tabs+1);
     representacaoIndentada(aux->dir, tabs+1);
-
 }
 
-void construtor(ArvBinPesq* ptrRaiz, char* arvore) {
-    int i, x;
+void constroiArvore(ArvBinPesq* ptrRaiz, char* arvore) {
+    int i, j, x;
     int tam = strlen(arvore);
+    char aux[5] = "";
     for(i = 0; i < tam; i++) {
-        if ( (arvore[i] != '(' && arvore[i] != ')') && (arvore[i] != ',' && arvore[i] != ' ') ){
-            x = arvore[i] % 48; // transforma char em int. !válido SOMENTE para chaves de 0 a 9, pois a partir daí os números têm mais de 1 caractere
+        strcpy(aux, "");
+        while ( (((arvore[i] != '(' && arvore[i] != ')') && arvore[i] != ',') && arvore[i] != ' ') && arvore[i] != '\0'){
+            concatenarCaractere(aux, arvore[i]);
+            i++;
+        }
+        if (strlen(aux) > 0) {
+            x = atoi(aux);
             insereVertice(ptrRaiz, x);
         }
+    }
+}
+
+void concatenarCaractere(char* palavra, char caractere) {
+    int tam = strlen(palavra);
+    palavra[tam] = caractere;
+    palavra[tam+1] = '\0';
+}
+
+void destroiArvore(ArvBinPesq* ptrRaiz) {
+    ArvBinPesq aux = *ptrRaiz;
+    if (aux != NULL) {
+        destroiArvore(&aux->esq);
+        destroiArvore(&aux->dir);
+        free(aux);
+        *ptrRaiz = NULL;
     }
 }
