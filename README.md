@@ -1,4 +1,3 @@
-# Códigos-fonte de tópicos importantes da Linguagem C
+# Fundamentos de Programação
 
-Basicamente compreende fundamentos de programação na 
-linguagem C (vale para muitas outras linguagens).
+Implementação de tópicos fundamentais de Algoritmos, Estrutura de Dados etc.
