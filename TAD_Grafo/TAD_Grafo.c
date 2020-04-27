@@ -3,72 +3,96 @@
 #include "TAD_ListaDinamica.c"
 #include "TAD_FilaDinamica.c"
 
-//#define TAM 6
+/*Tipo estruturado para vÃ©rtices de um grafo.*/
+struct vertice {
+    Lista listAdj; // lista de adjacÃªncia do vÃ©rtice
+    /* Propriedades usadas somente em algoritmos de busca */
+    char cor;
+    int d;  // distÃ¢ncia da origem
+    int p; // rotulo do predecessor
+};
+typedef struct vertice Vertice;
 
-typedef Lista* GrafoL;       //Grafo como lista de Adjacências
-typedef int** GrafoM;   //Grafo como matriz de Adjacências
+/*Tipo estruturado para um Grafo representado com listas */
+struct grafo {
+    Vertice* V; // Vetor de vÃ©rtices
+    int TAM;    // quantidade de vÃ©rtices do grafo
+};
+typedef struct grafo GrafoL; //Grafo como lista de Adjacencias
+
+typedef int** GrafoM;   //Grafo como matriz de Adjacï¿½ncias
 
 int insereAresta(Lista*, int);
 int removeAresta(Lista*, int);
-void BFS(GrafoL, int, int);
+void BFS(GrafoL*, int);
 void finalizaListaAdj(Lista*);
 
 int main()
 {
     GrafoL Glista;
     GrafoM Gmatriz;
+
     int TAM, i, j, v0;
 
     TAM = 6;
 
-    Glista = (Lista*)malloc(TAM*sizeof(Lista));
+    /* InicializaÃ§Ã£o do grafo representado por lista */
+    Glista.V = (Vertice*)malloc(TAM*sizeof(Vertice)); // alocando o vetor de vertices do grafo
+    Glista.TAM = TAM;   // guardando o tamanho para nÃ£o ser necessÃ¡rio passÃ¡-lo como argumento em funÃ§Ãµes e procedimentos
     for (i = 0; i < TAM; i++)
-        inicializarListaAdj(&Glista[i]);
+        inicializarListaAdj(&(Glista.V[i].listAdj));    // inicializando a lista de adjacÃªncias de cada vÃ©rtice
 
+
+    /* InicializaÃ§Ã£o do grafo representado por matriz */
     Gmatriz = (int**)malloc(TAM*sizeof(int*));
     for (i = 0; i < TAM; i++)
         Gmatriz[i] = (int*)malloc(TAM*sizeof(int));
 
-    insereAresta(&Glista[0], 1);
+
+    /* Inserindo as ligaÃ§Ãµes entre os vÃ©rtices. Em outras palavras, inserindo as arestas */
+    insereAresta(&Glista.V[0].listAdj, 1);
     Gmatriz[0][1] = 1;
-    insereAresta(&Glista[0], 2);
+    insereAresta(&Glista.V[0].listAdj, 2);
     Gmatriz[0][2] = 1;
 
-    insereAresta(&Glista[1], 0);
+    insereAresta(&Glista.V[1].listAdj, 0);
     Gmatriz[1][0] = 1;
-    insereAresta(&Glista[1], 2);
+    insereAresta(&Glista.V[1].listAdj, 2);
     Gmatriz[1][2] = 1;
 
-    insereAresta(&Glista[2], 0);
+    insereAresta(&Glista.V[2].listAdj, 0);
     Gmatriz[2][0] = 1;
-    insereAresta(&Glista[2], 1);
+    insereAresta(&Glista.V[2].listAdj, 1);
     Gmatriz[2][1] = 1;
-    insereAresta(&Glista[2], 3);
+    insereAresta(&Glista.V[2].listAdj, 3);
     Gmatriz[2][3] = 1;
 
-    insereAresta(&Glista[3], 2);
+    insereAresta(&Glista.V[3].listAdj, 2);
     Gmatriz[3][2] = 1;
-    insereAresta(&Glista[3], 4);
+    insereAresta(&Glista.V[3].listAdj, 4);
     Gmatriz[3][4] = 1;
-    insereAresta(&Glista[3], 5);
+    insereAresta(&Glista.V[3].listAdj, 5);
     Gmatriz[3][5] = 1;
 
-    insereAresta(&Glista[4], 3);
+    insereAresta(&Glista.V[4].listAdj, 3);
     Gmatriz[4][3] = 1;
-    insereAresta(&Glista[4], 5);
+    insereAresta(&Glista.V[4].listAdj, 5);
     Gmatriz[4][5] = 1;
 
-    insereAresta(&Glista[5], 3);
+    insereAresta(&Glista.V[5].listAdj, 3);
     Gmatriz[5][3] = 1;
-    insereAresta(&Glista[5], 4);
+    insereAresta(&Glista.V[5].listAdj, 4);
     Gmatriz[5][4] = 1;
 
+
+    /* Imprimindo o grafo representado por lista */
     printf("Lista de Adjacencias do grafo G: \n");
     for(i = 0; i < TAM; i++) {
         printf("[%d]---", i);
-        imprimeListaAdj(&Glista[i]);
+        imprimeListaAdj(&Glista.V[i].listAdj);
     }
 
+    /* Imprimindo o grafo representado por matriz */
     printf("\nMatriz de Adjacencias do grafo G: \n");
     for(i = 0; i < TAM; i++) {
         for(j = 0; j < TAM; j++) {
@@ -79,27 +103,31 @@ int main()
         printf("\n");
     }
 
-    for (i = 0; i < TAM; i++)
-        free(Gmatriz[i]);
-    free(Gmatriz);
 
-
+    /* ExecuÃ§Ã£o do algoritmo BFS*/
     printf("\nBFS - Breadth-First Search (Busca em Largura): \n");
     printf("Digite o vertice de origem para a BFS (0 - %d): ", TAM-1);
     scanf("%d", &v0);
-
     printf("  v: vertice\n");
     printf("  d: distancia da origem\n");
     printf("  p: predecessor\n");
     printf("[(v), d,  p]\n");
-    BFS(Glista, TAM, v0);
+    BFS(&Glista, v0);
+    imprimeCaminho(&Glista, 3, 1);
 
-    for(i = 0; i < TAM; i++) {    // finaliza o grafo
-        finalizaListaAdj(&Glista[i]);
-        //printf("%p, %p, %d\n", Glista[i].primeiro, Glista[i].ultimo, Glista[i].tamanho);
-    }
-    free(Glista);
+
+    /* Finalizando o grafo representado por matriz */
+    for (i = 0; i < TAM; i++)
+        free(Gmatriz[i]);
+    free(Gmatriz);
+
+    /* Finalizando o grafo representado por lista */
+    for(i = 0; i < TAM; i++)
+        finalizaListaAdj(&Glista.V[i].listAdj);
+    free(Glista.V);
+
     return 0;
+
 }
 
 int insereAresta(Lista* L, int novo) {
@@ -112,17 +140,17 @@ int insereAresta(Lista* L, int novo) {
             L->primeiro = novoAdjacente;
             L->ultimo = novoAdjacente;
         } else {
-            if (L->primeiro->vertice > novo) {
+            if (L->primeiro->rot > novo) {
                 novoAdjacente->proxAdj = L->primeiro;
                 L->primeiro = novoAdjacente;
             } else {
-                if(L->ultimo->vertice < novo) {
+                if(L->ultimo->rot < novo) {
                     L->ultimo->proxAdj = novoAdjacente;
                     L->ultimo = novoAdjacente;
                 } else {
                     ant = aux = L->primeiro;
                     while (aux) {
-                        if (aux->vertice > novo)
+                        if (aux->rot > novo)
                             break;
                         ant = aux;
                         aux = aux->proxAdj;
@@ -147,12 +175,12 @@ int removeAresta(Lista* L, int x) {
 
     ant = NULL;
     aux = L->primeiro;
-    if (aux->vertice == x) {
+    if (aux->rot == x) {
         L->primeiro = L->primeiro->proxAdj;
     } else {
         ant = aux;
         while(aux) {
-            if(aux->vertice == x)
+            if(aux->rot == x)
                 break;
             ant = aux;
             aux = aux->proxAdj;
@@ -168,61 +196,73 @@ int removeAresta(Lista* L, int x) {
 
 void finalizaListaAdj(Lista* L) {
     while(L->primeiro)
-        removeAresta(L, L->primeiro->vertice);
+        removeAresta(L, L->primeiro->rot);
 }
 
 /*
-    DESCRIÇÃO
-    Percurso em grafo, que, partindo de um dado vértice, acessa os demais.
-    Baseado na coloração:
-        - Branco (b): vértice ainda não visitado
-        - Cinza (c): vértice sendo visitado, isto é, acessando seus vértices adjacentes
-        - Preto (p): vértice completamente visitado
-    PARAMÊTROS
-        G[]=vetor de vértices e suas respectivas listas de adjacências
-        v0=vértice de origem
+    DESCRICAO
+    Percurso em grafo, que, partindo de um dado vï¿½rtice, acessa os demais.
+    Baseado na coloraï¿½ï¿½o:
+        - Branco (b): vï¿½rtice ainda nï¿½o visitado
+        - Cinza (c): vï¿½rtice sendo visitado, isto ï¿½, acessando seus vï¿½rtices adjacentes
+        - Preto (p): vï¿½rtice completamente visitado
+    PARAMï¿½TROS
+        G[]=vetor de vï¿½rtices e suas respectivas listas de adjacï¿½ncias
+        v0=vï¿½rtice de origem
 */
-void BFS(GrafoL G, int TAM, int v0) {
+void BFS(GrafoL* G, int v0) {
 
-    int u;
+    int u; // Ã­ndice de cada vÃ©rtice do Grafo. Exemplo: Dado o conjunto de vertices V = {v(u) | u = 0..3} = {v(0), v(1), v(2), v(3)}
 
-    char c[TAM];                    // vetor de cores
-    int p[TAM];                     // vetor de predecessores
-    int d[TAM];                     // vetor de distâncias de cada vértice em relação à origem
+    Fila Q; // fila para armazenar e ordenar a maneira de exploracao dos vertices do grafo
 
-    Fila Q;                         // fila para armazenar e ordenar a maneira de exploração dos vértices do grafo
+    Lista *uAdj; // ponteiro auxiliar para acessar sem complicacoes, iteracao a iteracao, a lista de adjacencias de cada vertice
+    adjacente *vPtr;   // ponteiro auxiliar para percorrer a lista de adjacencias de cada vertice
 
-    Lista *uAdj;                     // ponteiro auxiliar para acessar sem complicações, iteração a iteração, a lista de adjacências de cada vértice
-    adjacente *v;                    // ponteiro auxiliar para percorrer e acessar cada vértice adjacente a um dado vértice
+    int v; // Ã­ndice de cada vÃ©rtice adjacente a u.
 
-    /*Inicialização*/
-    for(u = 0; u < TAM; u++) {          // Para cada u pertencente ao conjunto de vértices
-        if (u != v0) {                  // excluindo-se o vértice de origem
-            c[u] = 'b';                     // pinte-o de branco - ainda não visitado
-            d[u] = 100;                     // distância desconhecida
-            p[u] = -1;                      // predecessor desconhecido
+    // Inicializacao
+    for(u = 0; u < G->TAM; u++) {          // Para cada u pertencente ao conjunto de vertices
+        if (u != v0) {                  // excluindo-se o vertice de origem
+            G->V[u].cor = 'b';                     // pinte-o de branco - ainda nao visitado
+            G->V[u].d = 100;                     // distancia desconhecida (para Dijkstra)
+            G->V[u].p= -1;                      // predecessor desconhecido
         }
     }
 
-    c[v0] = 'c';                        //pintura de cinza, pois está sendo visitado;
-    d[v0] = 0;                          //distância do vértice a ele mesmo
-    p[v0] = -1;                         //-1 indica que não tem predecessor
-    inicializarFila(&Q);                //fila que guarda os vértices acessíves a partir de v0. Como se trata de una fila,
-    enfileirar(&Q, v0);                 //  o primeiro a entrar será o primeiro a ser explorado
+    G->V[v0].cor = 'c';                        //pintura de cinza, pois esta sendo visitado;
+    G->V[v0].d = 0;                          //distancia do vertice a ele mesmo
+    G->V[v0].p = -1;                         //-1 indica que nao tem predecessor
+    inicializarFila(&Q);                //fila que guarda os vertices acessives a partir de v0. Como se trata de una fila,
+    enfileirar(&Q, v0);                 //  o primeiro a entrar sera o primeiro a ser explorado
 
-    while (!filaVazia(&Q)) {            //enquanto a fila não está vazia
-        u = desenfileirar(&Q);          //acesso ao primeiro vértice (u) da fila
-        uAdj = &G[u];                   //facilitando o acesso, através de um auxiliar, à lista de adjacências de u
-        for(v = uAdj->primeiro; v != NULL; v = v->proxAdj) {    //laço para acessar todos os vértices (v) adjacentes a u
-            if (c[v->vertice] == 'b') {                         //condição para não visitar vértices que já estão na fila, isto é, aqueles que talvez já tenham sido acessados através de outro vértice.
-                c[v->vertice] = 'c';                            //coloração que indica que ele será enfileirado
-                p[v->vertice] = u;                              //registra o antecessor de v
-                d[v->vertice] = d[u] + 1;                       //registra a distância de v0 a v
-                enfileirar(&Q, v->vertice);                     //enfileirando v
+    while (!filaVazia(&Q)) {            //enquanto a fila nao esta vazia
+        u = desenfileirar(&Q);          //acesso ao primeiro vertice (u) da fila
+        uAdj = &(G->V[u].listAdj);                   //facilitando o acesso, atraves de um auxiliar, a lista de adjacencias de u
+        for(vPtr = uAdj->primeiro; vPtr != NULL; vPtr = vPtr->proxAdj) {    //laco para acessar todos os vï¿½rtices (v) adjacentes a u
+            v = vPtr->rot;                                      //para ficar mais legivel.
+            if (G->V[v].cor == 'b') {                         //condicao para nao visitar vertices que ja estao na fila, isto e, aqueles que talvez ja tenham sido acessados atraves de outro vertice.
+                G->V[v].cor = 'c';                            //coloracao que indica que ele serÃ¡ enfileirado
+                G->V[v].p = u;                              //registra o antecessor de v
+                G->V[v].d = G->V[u].d + 1;                       //registra a distï¿½ncia de v0 a v
+                enfileirar(&Q, v);                     //enfileirando v
             }
         }
-        c[u] = 'p';                                     //vértice visitado. Em outras palavras, todos os seus adjcentes foram colocados na fila, para serem visitados
-        printf("[(%d), %d, %2d]\n", u, d[u], p[u]);
+        G->V[u].cor = 'p';                                     //vï¿½rtice visitado. Em outras palavras, todos os seus adjcentes foram colocados na fila, para serem visitados
+        printf("[(%d), %d, %2d]\n", u, G->V[u].d, G->V[u].p);
     }
     finalizarFila(&Q);                                  //garantia de esvaziamento da fila
+}
+
+void imprimeCaminho(GrafoL* G, int v0, int vD) {
+    if (v0 == vD)
+        printf("%d", v0);
+    else {
+        if (G->V[vD].p == -1)
+            printf("Nao existe caminho de %d para %d\n", v0, vD);
+        else {
+            imprimeCaminho(G, v0, G->V[vD].p);
+            printf("-%d", vD);
+        }
+    }
 }

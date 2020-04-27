@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* Tipo estruturado adaptado de celula, para representar um cada vertice adjacente a um outro  */
 struct adjacente {
-    int vertice;
-    struct adjacente* proxAdj;
+    int rot;  // rotulo
+    struct adjacente* proxAdj; // proximo vertice adjacente
 };
 typedef struct adjacente adjacente;
 
@@ -112,7 +113,7 @@ int listaAdjVazia(Lista* L) {
 adjacente* criaAdjacente(int novo) {
     adjacente* novoAdjacente;
     if ((novoAdjacente = malloc(sizeof(adjacente)))) {
-        novoAdjacente->vertice = novo;
+        novoAdjacente->rot = novo;
         novoAdjacente->proxAdj = NULL;
         return novoAdjacente;
     }
@@ -122,7 +123,7 @@ adjacente* criaAdjacente(int novo) {
 int buscaListaAdj(Lista* L, int buscado) {
     adjacente* aux = L->primeiro;
     while(aux) {
-        if (aux->vertice == buscado)
+        if (aux->rot == buscado)
             return 1;
     }
     return 0;
@@ -131,7 +132,7 @@ int buscaListaAdj(Lista* L, int buscado) {
 void imprimeListaAdj(Lista* L) {
     adjacente* aux = L->primeiro;
     while (aux) {
-        printf("--->>[%d]", aux->vertice);
+        printf("--->>[%d]", aux->rot);
         aux = aux->proxAdj;
     }
     printf("--->>[\\]\n");
