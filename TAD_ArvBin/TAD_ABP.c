@@ -25,6 +25,9 @@ void representacaoIndentada(ArvBinPesq, int);
 void constroiArvore(ArvBinPesq*, char*);
 void concatenarCaractere(char*, char);
 void destroiArvore(ArvBinPesq*);
+int giraVertice(ArvBinPesq*, int, int);
+int rotacaoEsquerda(ArvBinPesq*);
+int rotacaoDireita(ArvBinPesq*);
 
 int main() {
 
@@ -35,9 +38,9 @@ int main() {
     printf("====================Arvore Binaria de Pesquisa - ABP====================\n");
 
     constroiArvore(&Raiz, arvore);
-    insereVertice(&Raiz, 51);
-    insereVertice(&Raiz, 46);
-    removeVertice(&Raiz, 50);
+    /*insereVertice(&Raiz, 51);
+    insereVertice(&Raiz, 52);
+    insereVertice(&Raiz, 53);*/
     //destroiArvore(&Raiz);
     printf("\nRepresentacao aninhada: ");
     representacaoAninhada(Raiz);
@@ -54,6 +57,13 @@ int main() {
     printf("\n  PosOrdem: ");
     posOrdem(Raiz);
     printf("\n");
+
+    /*giraVertice(&Raiz, 51, 1);
+    representacaoAninhada(Raiz);
+    printf("\n");
+    insereVertice(&Raiz, 55);
+    representacaoAninhada(Raiz);
+    printf("\n");*/
 
     printf("========================================================================\n\n");
 
@@ -253,4 +263,45 @@ void destroiArvore(ArvBinPesq* ptrRaiz) {
         free(aux);
         *ptrRaiz = NULL;
     }
+}
+
+int giraVertice(ArvBinPesq* ptrRaiz, int x, int sent) {
+    if (*ptrRaiz != NULL) {
+        if ((*ptrRaiz)->chave == x) {   // vertice a ser rotacionado foi encontrado
+            if (sent > 0)
+                rotacaoEsquerda(ptrRaiz);
+            else
+                rotacaoDireita(ptrRaiz);
+        } else {
+            if (x < (*ptrRaiz)->chave)
+                giraVertice(&(*ptrRaiz)->esq, x, sent);
+            else
+                giraVertice(&(*ptrRaiz)->dir, x, sent);
+        }
+    } else
+        return 0;
+}
+
+int rotacaoEsquerda(ArvBinPesq* V) {
+    ArvBinPesq aux; // elemento que tomara o lugar de V, quando V rotacionar
+    if (*V && (*V)->dir) {  // se existe um elemento para rotacionar e esse elemento possui filho à direita
+        aux = (*V)->dir;    // guardando referencia
+        (*V)->dir = aux->esq;   // o filho direito de V passa a ser o filho esquerdo de aux
+        aux->esq = *V;
+        (*V) = aux;
+        return 1;
+    }
+    return 0;
+}
+
+int rotacaoDireita(ArvBinPesq* V) {
+    ArvBinPesq aux;
+    if (*V && (*V)->esq) {
+        aux = (*V)->esq;
+        (*V)->esq = aux->dir;
+        aux->dir = *V;
+        (*V) = aux;
+        return 1;
+    }
+    return 0;
 }
