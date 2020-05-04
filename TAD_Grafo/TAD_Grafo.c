@@ -32,8 +32,7 @@ int main()
     GrafoL Glista;
     GrafoM Gmatriz;
 
-    int TAM, i, j, v0;
-
+    int TAM, i, j, v0, vd;
     TAM = 6;
 
     /* Inicialização do grafo representado por lista */
@@ -113,7 +112,9 @@ int main()
     printf("  p: predecessor\n");
     printf("[(v), d,  p]\n");
     BFS(&Glista, v0);
-    imprimeCaminho(&Glista, 3, 1);
+    printf("\nDado o vertice %d, digite o vertice destino para calcular o caminho: ");
+    scanf("%d", &vd);
+    imprimeCaminho(&Glista, v0, vd);
 
 
     /* Finalizando o grafo representado por matriz */
