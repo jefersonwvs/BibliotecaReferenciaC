@@ -1,12 +1,13 @@
+package main;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Scanner;
 
 public class Grafo {
 
-    int n; // número de vértices
+    /* Grafo representado como lista de adjacências */
+    int n;
     LinkedList<Integer> adj[];
 
     /* Útil para a BFS e DFS */
@@ -21,12 +22,16 @@ public class Grafo {
     /* Útil para pontes */
     int[] low;
 
+    /*
+     *
+     * TAD
+     *
+     */
     Grafo(int n) {
 	this.n = n;
 	adj = new LinkedList[n];
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
 	    adj[i] = new LinkedList<>();
-	}
 	cor = new char[n];
 	d = new int[n];
 	p = new int[n];
@@ -34,9 +39,8 @@ public class Grafo {
 	d_f = new int[n][2];
 	low = new int[n];
     }
-
-    // Adiciona aresta não direcionada (u,v)
-    void adicionaAresta(int u, int v) {
+    
+    public void adicionaAresta(int u, int v) {
 	if (!adj[u].contains(v)) {
 	    adj[u].add(v);
 	    adj[v].add(u);
@@ -46,13 +50,23 @@ public class Grafo {
 	}
     }
 
-    void removeAresta(int u, int v) {
+    public void removeAresta(int u, int v) {
 	if (adj[u].contains(v)) {
 	    adj[u].remove(v);
 	    adj[v].remove(u);
 	}
     }
+    
+    public void imprimeGrafo() {
+	for(int i = 0; i < n; i++)
+	    System.out.printf("[%d] ----> %s\n", i, adj[i]);
+    }
 
+    /* 
+     *
+     * Algoritmos em Grafos 
+     *
+     */
     void BFS(int v0) throws InterruptedException {
 
 	int u;
@@ -104,7 +118,7 @@ public class Grafo {
 	
     }
     
-    void DFS_visita(int u) {
+    private void DFS_visita(int u) {
 	
 	cor[u] = 'c';
 	tempo++;
@@ -124,6 +138,7 @@ public class Grafo {
 	System.out.printf("%d(%d,%d)\n", u, d_f[u][0], d_f[u][1]);
     }
     
+    // pontes() == DFS()
     void pontes() {
 	
 	int u;
@@ -140,7 +155,7 @@ public class Grafo {
 	
     }
     
-    void pontesVisita(int u) {
+    private void pontesVisita(int u) {
 	
 	cor[u] = 'c';
 	tempo++;
@@ -157,44 +172,11 @@ public class Grafo {
 		low[u] = Math.min(low[u], low[v]);
 		
 		if (low[v] > d_f[u][0])
-		    System.out.println(u + "-" + v);
+		    System.out.print(u + "-" + v + "  ");
 	    } else 
 		if (v != p[u])
 		    low[u] = Math.min(low[u], d_f[v][0]);
 	}
-//	cor[u] = 'p';
-//	tempo++;
-//	d_f[u][1] = tempo;
-//	System.out.printf("%d(%d,%d)\n", u, d_f[u][0], d_f[u][1]);
     }
 
-    public static void main(String[] args) throws InterruptedException {
-
-	Scanner sc = new Scanner(System.in);
-
-	int n = 6;
-	Grafo G = new Grafo(n);
-
-	G.adicionaAresta(0, 2);
-	G.adicionaAresta(0, 1);
-	G.adicionaAresta(2, 3);
-	G.adicionaAresta(2, 1);
-	G.adicionaAresta(3, 4);
-	G.adicionaAresta(3, 5);
-	G.adicionaAresta(4, 5);
-	
-	System.out.println("Lista de Adjacências do Grafo:");
-	for (int i = 0; i < n; i++)
-	    System.out.println("[" + i + "] --> " + G.adj[i]);
-
-	System.out.printf("\nBFS(0-%d): ", n - 1);
-	int v0 = sc.nextInt();
-	System.out.println("[(v), d,  p]");
-	G.BFS(v0);
-	
-	System.out.println("");
-	G.pontes();
-
-	sc.close();
-    }
 }
