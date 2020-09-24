@@ -10,7 +10,7 @@ public class Vertice implements Comparable<Vertice> {
     List<Aresta> adj;
     
     /* para Dijkstra*/
-    double d; // d = distância (estimativa)
+    double d; // d = distância (estimativa de caminho mínimo)
     Vertice p; // p = predecessor
     
     public Vertice() {

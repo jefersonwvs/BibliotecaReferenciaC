@@ -13,7 +13,7 @@ public class Teste {
         
         Locale.setDefault(Locale.US);
         
-        String caminho = "grafo2.txt";
+        String caminho = "grafo6-bellmanford.txt";
         
         try {
             
@@ -21,8 +21,9 @@ public class Teste {
             
             G.imprimeListaAdj();
             System.out.println("");
-            System.out.println(G.algDijkstra(G.buscaVertice(new Vertice('F')), G.buscaVertice(new Vertice('A'))));
-    
+            System.out.println(G.algBellmanFord(G.buscaVertice(new Vertice('A')), G.buscaVertice(new Vertice('F'))));
+            G.imprimeListaAdj();
+            
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

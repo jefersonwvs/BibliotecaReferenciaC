@@ -27,7 +27,7 @@ public class Aresta implements Comparable<Aresta>{
     
     @Override
     public String toString() {
-        return "(" + peso + ")"+destino.toString();
+        return "(" + peso + ")"+ destino.toString();
     }
 
     @Override
@@ -40,9 +40,9 @@ public class Aresta implements Comparable<Aresta>{
             return 1;
         }
     }
-    
-    
-    
-    
 
+    public Vertice getOrigem() {
+        return destino;
+    }
+    
 }
