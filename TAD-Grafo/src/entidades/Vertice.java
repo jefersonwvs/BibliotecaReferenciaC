@@ -9,14 +9,10 @@ public class Vertice implements Comparable<Vertice> {
     Character rotulo;
     List<Aresta> adj;
     
-    /* para Dijkstra*/
+    /* Para cálculo de caminho mínimo */
     double d; // d = distância (estimativa de caminho mínimo)
     Vertice p; // p = predecessor
-    
-    public Vertice() {
         
-    }
-    
     public Vertice(Character rotulo) {
         this.rotulo = rotulo;
         adj = new LinkedList<>();
@@ -30,15 +26,15 @@ public class Vertice implements Comparable<Vertice> {
         return adj;
     }
 
-    public void setEstimativa(double estimativa) {
-        this.d = estimativa;
+    public void setD(double d) {
+        this.d = d;
     }
 
-    public void setPai(Vertice pai) {
-        this.p = pai;
+    public void setP(Vertice p) {
+        this.p = p;
     }
 
-    public double getEstimativa() {
+    public double getD() {
         return d;
     }
     

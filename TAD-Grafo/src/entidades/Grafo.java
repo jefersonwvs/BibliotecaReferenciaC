@@ -47,6 +47,7 @@ public class Grafo {
             System.out.println("[" + u.getRotulo() + "(" + u.d + ")" + "] → " + u.getAdj());
     }
     
+    /* Algoritmo que inicializa os valores d e p de cada vértice, para posterior execução do Dijkstra, Bellman-Ford */
     private void inicializaGrafo(Vertice v0) {
         /* Inicialização dos vértices */
         for (Vertice v : V) {
@@ -55,19 +56,31 @@ public class Grafo {
         }
         v0.d = 0.0;  
     }
+    
+    private void relaxaAresta(Aresta uv) {
+
+        Vertice u = uv.origem;
+        Vertice v = uv.destino;
+        if (v.d > u.d + uv.peso) {
+            v.d = u.d + uv.peso;
+            v.p = u;        
+        }
+    }
         
+    /* Algoritmo que, após o cálculo das estimativas, usando Dijkstra, Bellman-Ford etc., efetivamente
+    calculará o menor caminho de um vértice origem até um vértice destino */
     private String caminhoMinimo(Vertice vD) {
-        
+      
         Vertice aux = vD;
-        if (aux.p == null)
+        if (aux.p == null) // vD não é acessível a partir de v0
             return "";
-       
+        
         String caminho = "";
-        while (aux.p != null) {
-            caminho = String.format(" --> %s(%.1f)", aux.getRotulo().toString(), aux.getEstimativa()) + caminho;
+        while (aux.p != null) { // laço que permite construir o caminho de trás para frente
+            caminho = String.format(" --> %s(%.1f)", aux.rotulo.toString(), aux.d) + caminho;
             aux = aux.p;
         }
-        caminho = String.format("%s(%.1f)", aux.getRotulo().toString(), aux.getEstimativa()) + caminho;
+        caminho = String.format("%s(%.1f)", aux.rotulo.toString(), aux.d) + caminho;
         return caminho;
         
     }
@@ -106,8 +119,8 @@ public class Grafo {
         
         abertos.addLast(v0);
 
-        while (!abertos.isEmpty()) {
-            
+        while (!abertos.isEmpty()) 
+        {   
             Vertice u = null;
             double menorDistancia = Double.POSITIVE_INFINITY;
 
@@ -125,37 +138,59 @@ public class Grafo {
 
             Iterator<Aresta> uAdj = u.getAdj().iterator(); // "percorredor" de listas
 
-            while (uAdj.hasNext()) {
-
+            while (uAdj.hasNext()) 
+            {
                 Aresta uv = uAdj.next();
                 Vertice v = uv.destino;
                 if (!fechados.contains(v)) {
-                    if (v.d > u.d + uv.peso) {
-                        v.d = u.d + uv.peso;
-                        v.p = u;
-                        if (!abertos.contains(v)) {
-                            abertos.addLast(v);
-                        }
+                    relaxaAresta(uv);
+                    if (!abertos.contains(v)) {
+                        abertos.addLast(v);
                     }
                 }
             }
         }
         
         return caminhoMinimo(vD);
+        
     }
     
+    private boolean temCicloNegativo() {
+        
+        LinkedList<Vertice> aux = (LinkedList<Vertice>) V.clone(); // cópia de todos os vértices, pois todos serão relaxados
+
+        while (!aux.isEmpty()) {
+            Vertice u = aux.poll();
+            Iterator<Aresta> uAdj = u.getAdj().iterator(); // "percorredor" de listas
+            while (uAdj.hasNext()) {
+                Aresta uv = uAdj.next();
+                Vertice v = uv.destino;
+                if (u.d + uv.peso < v.d) {
+                    System.out.println(u.d + " + " + uv.peso + " < " + v.d);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    
+    /*Algoritmo de Bellman-Ford: 
+        para grafos:
+            - Direcionados (dígrafos);
+            - Arestas de custo positivo ou negativo.
+     */
     public String algBellmanFord(Vertice v0, Vertice vD) {
         
         LinkedList<Vertice> abertos = new LinkedList<>();
         
         inicializaGrafo(v0);
         
-        abertos = (LinkedList<Vertice>) V.clone();
-        
-        for (int it = 1; it < V.size(); it++) {
+        for (int it = 1; it < V.size(); it++) { // iterações
             
-            abertos.remove(v0);
-            abertos.addFirst(v0);
+            abertos = (LinkedList<Vertice>) V.clone(); // cópia de todos os vértices, pois todos serão relaxados
+            abertos.remove(v0); // remoção do v0 de origem
+            abertos.addFirst(v0); // reinserindo de maneira que ele seja o primeiro
             
             while (!abertos.isEmpty()) {
                 Vertice u = abertos.poll();
@@ -166,17 +201,13 @@ public class Grafo {
 
                     Aresta uv = uAdj.next();
                     Vertice v = uv.destino;
-                    if (v.d > u.d + uv.peso) {
-                        v.d = u.d + uv.peso;
-                        v.p = u;
-                        if (!abertos.contains(v)) {
-                            abertos.addLast(v);
-                        }
-                    }
+                    relaxaAresta(uv);
                 }
-            }
+            }            
         }
+        
         return caminhoMinimo(vD);
+    
     }
     
 }

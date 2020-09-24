@@ -22,6 +22,7 @@ public class Teste {
             G.imprimeListaAdj();
             System.out.println("");
             System.out.println(G.algBellmanFord(G.buscaVertice(new Vertice('A')), G.buscaVertice(new Vertice('F'))));
+            System.out.println("");
             G.imprimeListaAdj();
             
         } catch (IOException e) {
