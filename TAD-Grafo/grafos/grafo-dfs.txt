@@ -1,8 +1,0 @@
-u v 1
-u x 1
-v y 1
-w y 1
-w z 1
-x v 1
-y x 1
-z z 1
