@@ -1,3 +1,3 @@
-# Fundamentos de Programação
+# Data Structures in C
 
-Implementação de tópicos fundamentais de Algoritmos, Estrutura de Dados etc.
+In this repository you will find some data structures implemented using the C programming language.
